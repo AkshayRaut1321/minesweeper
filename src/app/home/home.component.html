@@ -1,0 +1,16 @@
+<section class="jumbotron text-center">
+  <div class="container">
+    <h1 class="jumbotron-heading">Minesweeper</h1>
+    <p>
+      Select game level and press Start!
+    </p>
+  </div>
+
+  <div class="btn-group" btnRadioGroup [(ngModel)]="radioModel">
+    <label *ngFor="let level of levels" class="btn btn-success" [btnRadio]="level.value" tabindex="0" role="button">{{level.name}}</label>
+  </div>
+  <br>
+  <button type="button" class="btn btn-primary" (click)="Start()">
+    Start
+  </button>
+</section>

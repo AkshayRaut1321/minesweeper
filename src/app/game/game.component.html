@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="row" *ngFor="let row of fields">
+    <button *ngFor="let cell of row" [ngClass]="{ 'btn' : true,
+      'btn-outline-info': !cell.show,
+      'btn-lg' : true,
+      'btn-success' : cell.show,
+      'btn-danger' : (cell.show && cell.value === -1),
+      'col-sm-1': true
+    }"
+      (click)="OpenRegion(cell)" [disabled]="gameOver">
+      <label [hidden]="!cell.show">{{cell.value}}</label>
+      <label [hidden]="cell.show">&nbsp;</label>
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-sm-5">
+      <alert type="danger" [hidden]="!gameOver">
+        <strong>Oh snap!</strong> Try again.
+      </alert>
+    </div>
+    <div class="col-sm-1">
+      <button (click)="Reset()" class="btn btn-primary">Reset</button>
+    </div>
+  </div>
+</div>
