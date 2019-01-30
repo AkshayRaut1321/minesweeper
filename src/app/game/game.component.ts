@@ -8,8 +8,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class GameComponent implements OnInit {
   private level: string;
-  private fields: any[];
-  private gameOver: boolean;
+  fields: any[];
+  gameOver: boolean;
   private rows: number;
 
   constructor(private route: ActivatedRoute) {
