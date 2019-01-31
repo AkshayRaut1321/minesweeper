@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./game.component.css']
 })
 export class GameComponent implements OnInit {
-  private level: string;
+  level: string;
   fields: any[];
   gameOver: boolean;
   private rows: number;
@@ -38,7 +38,7 @@ export class GameComponent implements OnInit {
         minesCount = 40;
         this.AllocateMines(result, minesCount);
         break;
-      case 'medium':
+      case 'hard':
         this.rows = 24;
         minesCount = 99;
         this.AllocateMines(result, minesCount);
@@ -49,18 +49,21 @@ export class GameComponent implements OnInit {
     return result;
   }
 
-  private AllocateMines(minesLocation, minesCount: number) {
-    for (let i = 0; i < minesCount; i++) {
+  private AllocateMines(minesLocation: any[], minesCount: number) {
+    while (minesLocation.length < minesCount) {
       let x = Math.floor(Math.random() * this.rows);
       let y = Math.floor(Math.random() * this.rows);
-      minesLocation.push([x, y]);
+      console.log(minesLocation.findIndex(a => a[0] == x && a[1] == y));
+      if (minesLocation.findIndex(a => a[0] == x && a[1] == y) == -1){
+        minesLocation.push([x, y]);
+      }
     }
   }
 
   private PlaceMines(mines): any[] {
     var mineFields = new Array(this.rows);
     for (let i = 0; i < this.rows; i++) {
-      mineFields[i] = new Array();
+      mineFields[i] = [];
       for (let j = 0; j < this.rows; j++) {
         mineFields[i].push({ x: i, y: j, show: false, value: 0 });
       }
@@ -86,7 +89,6 @@ export class GameComponent implements OnInit {
       this.ShowMines();
     }
     else if (cell.value === 0) {
-      debugger;
       for (let i = cell.x - 1; i <= cell.x + 1; i++) {
         for (let j = cell.y - 1; j <= cell.y + 1; j++) {
           if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== cell.x || j !== cell.y)) {
@@ -107,7 +109,6 @@ export class GameComponent implements OnInit {
   }
 
   ShowMines() {
-    debugger;
     for (let i = 0; i < this.rows; i++) {
       for (let j = 0; j < this.rows; j++) {
         if (this.fields[i][j].value === -1)

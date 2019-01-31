@@ -1,11 +1,12 @@
 <div class="container">
   <div class="row" *ngFor="let row of fields">
-    <button *ngFor="let cell of row" [ngClass]="{ 'btn' : true,
+    <button *ngFor="let cell of row"
+    [ngClass]="{ 'btn' : true,
       'btn-outline-info': !cell.show,
       'btn-lg' : true,
       'btn-success' : cell.show,
       'btn-danger' : (cell.show && cell.value === -1),
-      'col-sm-1': true
+      'easy' : (level === 'easy' ? true : false)
     }"
       (click)="OpenRegion(cell)" [disabled]="gameOver">
       <label [hidden]="!cell.show">{{cell.value}}</label>
