@@ -1,7 +1,17 @@
 <div class="container">
+  <div class="row">
+    <div class="col-sm-2"></div>
+    <div class="row col-sm-4">
+      <div class="col-sm-3">
+        <button (click)="Back()" class="btn btn-primary">Back</button>
+      </div>
+      <div class="col-sm-2">
+        <button (click)="Reset()" class="btn btn-primary">Reset</button>
+      </div>
+    </div>
+  </div>
   <div class="row" *ngFor="let row of fields">
-    <button *ngFor="let cell of row"
-    [ngClass]="{ 'btn' : true,
+    <button *ngFor="let cell of row" [ngClass]="{ 'btn' : true,
       'btn-outline-info': !cell.show,
       'btn-success' : cell.show,
       'btn-danger' : (cell.show && cell.value === -1),
@@ -14,14 +24,9 @@
       <label [hidden]="cell.show">&nbsp;</label>
     </button>
   </div>
-  <div class="row">
-    <div class="col-sm-5">
-      <alert type="danger" [hidden]="!gameOver">
-        <strong>Oh snap!</strong> Try again.
-      </alert>
-    </div>
-    <div class="col-sm-1">
-      <button (click)="Reset()" class="btn btn-primary">Reset</button>
-    </div>
+  <div class="col-sm-3">
+    <alert type="danger" [hidden]="!gameOver">
+      <strong>Oh snap!</strong> Try again.
+    </alert>
   </div>
 </div>

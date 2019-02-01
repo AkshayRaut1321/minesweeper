@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -12,7 +12,7 @@ export class GameComponent implements OnInit {
   gameOver: boolean;
   private rows: number;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.gameOver = false;
     this.rows = 3;
   }
@@ -121,5 +121,9 @@ export class GameComponent implements OnInit {
     var mines = this.GetMinesByLevel(this.level);
     this.fields = this.PlaceMines(mines);
     this.gameOver = false;
+  }
+
+  Back(){
+    this.router.navigate(['']);
   }
 }
