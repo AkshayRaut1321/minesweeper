@@ -1,9 +1,12 @@
-easy {
-    max-width:8.333333%
+.easy {
+    min-width:8%;
+    max-width:8%;
 }
-medium {
-    max-width:5.333333%
+.medium {
+    min-width:5%;
+    max-width:5%;
 }
-hard {
-max-width:3.333333%
+.hard {
+    min-width:3%;
+    max-width:3%;
 }
