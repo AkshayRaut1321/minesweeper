@@ -20,7 +20,10 @@
       'hard' : (level == 'hard')
     }"
       (click)="OpenRegion(cell)" [disabled]="gameOver">
-      <label [hidden]="!cell.show">{{cell.value}}</label>
+      <label [hidden]="!cell.show" [ngClass]="{
+        'fas' : true,
+        'fa-bomb' : cell.value === -1
+      }">{{ cell.value !== -1 ? cell.value : null }}</label>
       <label [hidden]="cell.show">&nbsp;</label>
     </button>
   </div>
