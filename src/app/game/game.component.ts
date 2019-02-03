@@ -25,7 +25,7 @@ export class GameComponent implements OnInit {
   @ViewChild('smModal') smModal;
   result: Result;
   hasTimerStarted = false;
-  timer: NodeJS.Timer;
+  timer: any;
 
   constructor(private route: ActivatedRoute, private router: Router, private modalService: BsModalService) {
     this.rows = 3;
