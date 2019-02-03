@@ -21,7 +21,6 @@ export class GameComponent implements OnInit {
   private showCount: number;
   private minesCount: number;
   private subscribeTime = 0;
-  private finalTime = 0;
   modalRef: BsModalRef;
   @ViewChild('smModal') smModal;
   result: Result;
@@ -159,7 +158,6 @@ export class GameComponent implements OnInit {
     this.result = Result.Reset;
     this.showCount = 0;
     this.subscribeTime = 0;
-    this.finalTime = 0;
   }
 
   Back() {
@@ -181,8 +179,7 @@ export class GameComponent implements OnInit {
   }
   stopwatch() {
     this.hasTimerStarted = false;
-    this.finalTime = this.subscribeTime;
-    this.subscribeTime = 0;
+    this.subscribeTime;
     clearInterval(this.timer);
   }
 
