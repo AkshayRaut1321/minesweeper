@@ -11,6 +11,8 @@ export class GameComponent implements OnInit {
   fields: any[];
   gameOver: boolean;
   private rows: number;
+  private showCount : number;
+  private minesCount : number;
 
   constructor(private route: ActivatedRoute, private router: Router) {
     this.gameOver = false;
@@ -26,22 +28,21 @@ export class GameComponent implements OnInit {
 
   private GetMinesByLevel(level: string): any[] {
     var result = [];
-    let minesCount: number;
     switch (level) {
       case 'easy':
         this.rows = 9;
-        minesCount = 15;
-        this.AllocateMines(result, minesCount);
+        this.minesCount = 15;
+        this.AllocateMines(result);
         break;
       case 'medium':
         this.rows = 16;
-        minesCount = 40;
-        this.AllocateMines(result, minesCount);
+        this.minesCount = 40;
+        this.AllocateMines(result);
         break;
       case 'hard':
         this.rows = 24;
-        minesCount = 99;
-        this.AllocateMines(result, minesCount);
+        this.minesCount = 99;
+        this.AllocateMines(result);
         break;
       default:
         throw new Error("Invalid level selected");
@@ -49,12 +50,12 @@ export class GameComponent implements OnInit {
     return result;
   }
 
-  private AllocateMines(minesLocation: any[], minesCount: number) {
-    while (minesLocation.length < minesCount) {
+  private AllocateMines(minesLocation: any[]) {
+    while (minesLocation.length < this.minesCount) {
       let x = Math.floor(Math.random() * this.rows);
       let y = Math.floor(Math.random() * this.rows);
       console.log(minesLocation.findIndex(a => a[0] == x && a[1] == y));
-      if (minesLocation.findIndex(a => a[0] == x && a[1] == y) == -1){
+      if (minesLocation.findIndex(a => a[0] == x && a[1] == y) == -1) {
         minesLocation.push([x, y]);
       }
     }
@@ -88,21 +89,28 @@ export class GameComponent implements OnInit {
       this.gameOver = true;
       this.ShowMines();
     }
-    else if (cell.value === 0) {
-      for (let i = cell.x - 1; i <= cell.x + 1; i++) {
-        for (let j = cell.y - 1; j <= cell.y + 1; j++) {
-          if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== cell.x || j !== cell.y)) {
-            let row = this.fields[i];
-            let adjacentCell = row[j];
-            if (!adjacentCell.show) {
-              if (adjacentCell.value === 0) {
-                adjacentCell.show = true;
-                this.OpenRegion(adjacentCell);
+    else {
+      if (cell.value === 0) {
+        for (let i = cell.x - 1; i <= cell.x + 1; i++) {
+          for (let j = cell.y - 1; j <= cell.y + 1; j++) {
+            if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== cell.x || j !== cell.y)) {
+              let row = this.fields[i];
+              let adjacentCell = row[j];
+              if (!adjacentCell.show) {
+                if (adjacentCell.value === 0) {
+                  adjacentCell.show = true;
+                  this.showCount++;
+                  this.OpenRegion(adjacentCell);
+                }
+                else if (adjacentCell.value !== -1)
+                  adjacentCell.show = true;
+                  this.showCount++;
               }
-              else if (adjacentCell.value !== -1)
-                adjacentCell.show = true;
             }
           }
+        }
+        if(this.showCount == (this.rows**2 - this.minesCount)){
+          alert('You won')
         }
       }
     }
@@ -123,7 +131,7 @@ export class GameComponent implements OnInit {
     this.gameOver = false;
   }
 
-  Back(){
+  Back() {
     this.router.navigate(['']);
   }
 }
