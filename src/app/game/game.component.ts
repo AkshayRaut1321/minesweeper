@@ -20,7 +20,7 @@ export class GameComponent implements OnInit {
   private rows: number;
   private showCount: number;
   private minesCount: number;
-  private subscribeTime = 0;
+  subscribeTime = 0;
   modalRef: BsModalRef;
   @ViewChild('smModal') smModal;
   result: Result;
