@@ -1,5 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap';
+import { timer, Subscription } from 'rxjs';
+
+enum Result {
+  Reset = "Reset",
+  Won = "Won",
+  Lost = "Lost"
+}
 
 @Component({
   selector: 'app-game',
@@ -9,14 +17,21 @@ import { ActivatedRoute, Router } from '@angular/router';
 export class GameComponent implements OnInit {
   level: string;
   fields: any[];
-  gameOver: boolean;
   private rows: number;
-  private showCount : number;
-  private minesCount : number;
+  private showCount: number;
+  private minesCount: number;
+  private subscribeTime = 0;
+  private finalTime = 0;
+  modalRef: BsModalRef;
+  @ViewChild('smModal') smModal;
+  result: Result;
+  hasTimerStarted = false;
+  timer: NodeJS.Timer;
 
-  constructor(private route: ActivatedRoute, private router: Router) {
-    this.gameOver = false;
+  constructor(private route: ActivatedRoute, private router: Router, private modalService: BsModalService) {
     this.rows = 3;
+    this.showCount = 0;
+    this.result = Result.Reset;
   }
 
   ngOnInit() {
@@ -31,7 +46,7 @@ export class GameComponent implements OnInit {
     switch (level) {
       case 'easy':
         this.rows = 9;
-        this.minesCount = 15;
+        this.minesCount = 10;
         this.AllocateMines(result);
         break;
       case 'medium':
@@ -54,7 +69,6 @@ export class GameComponent implements OnInit {
     while (minesLocation.length < this.minesCount) {
       let x = Math.floor(Math.random() * this.rows);
       let y = Math.floor(Math.random() * this.rows);
-      console.log(minesLocation.findIndex(a => a[0] == x && a[1] == y));
       if (minesLocation.findIndex(a => a[0] == x && a[1] == y) == -1) {
         minesLocation.push([x, y]);
       }
@@ -84,36 +98,49 @@ export class GameComponent implements OnInit {
   }
 
   OpenRegion(cell) {
-    cell.show = true;
-    if (cell.value === -1) {
-      this.gameOver = true;
-      this.ShowMines();
-    }
-    else {
-      if (cell.value === 0) {
-        for (let i = cell.x - 1; i <= cell.x + 1; i++) {
-          for (let j = cell.y - 1; j <= cell.y + 1; j++) {
-            if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== cell.x || j !== cell.y)) {
-              let row = this.fields[i];
-              let adjacentCell = row[j];
-              if (!adjacentCell.show) {
-                if (adjacentCell.value === 0) {
-                  adjacentCell.show = true;
-                  this.showCount++;
-                  this.OpenRegion(adjacentCell);
+    this.startStopwatch();
+    if (!this.checkWin(cell)) {
+      if (cell.value === -1) {
+        this.result = Result.Lost;
+        this.ShowMines();
+        this.openModal();
+        this.stopwatch();
+      }
+      else {
+        if (cell.value === 0) {
+          var selectedCells = [];
+          selectedCells.push(cell);
+          while (selectedCells.length > 0) {
+            var current = selectedCells.shift();
+            for (let i = current.x - 1; i <= current.x + 1; i++) {
+              for (let j = current.y - 1; j <= current.y + 1; j++) {
+                if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== current.x || j !== current.y)) {
+                  let row = this.fields[i];
+                  let adjacentCell = row[j];
+                  if (!adjacentCell.show && adjacentCell.value !== -1) {
+                    if (!this.checkWin(adjacentCell))
+                      if (adjacentCell.value === 0)
+                        selectedCells.push(adjacentCell);
+                  }
                 }
-                else if (adjacentCell.value !== -1)
-                  adjacentCell.show = true;
-                  this.showCount++;
               }
             }
           }
         }
-        if(this.showCount == (this.rows**2 - this.minesCount)){
-          alert('You won')
-        }
       }
     }
+  }
+
+  checkWin(cell) {
+    cell.show = true;
+    this.showCount++;
+    if (this.showCount == (this.rows ** 2 - this.minesCount)) {
+      this.openModal();
+      this.result = Result.Won;
+      this.stopwatch();
+      return true;
+    }
+    return false;
   }
 
   ShowMines() {
@@ -126,12 +153,40 @@ export class GameComponent implements OnInit {
   }
 
   Reset() {
+    this.smModal.hide();
     var mines = this.GetMinesByLevel(this.level);
     this.fields = this.PlaceMines(mines);
-    this.gameOver = false;
+    this.result = Result.Reset;
+    this.showCount = 0;
+    this.subscribeTime = 0;
+    this.finalTime = 0;
   }
 
   Back() {
     this.router.navigate(['']);
+  }
+
+  openModal() {
+    this.smModal.config.ignoreBackdropClick = true;
+    this.smModal.show();
+  }
+
+  startStopwatch() {
+    if (!this.hasTimerStarted) {
+      this.timer = setInterval(() => {
+        this.subscribeTime += 1;
+      }, 1000);
+      this.hasTimerStarted = true;
+    }
+  }
+  stopwatch() {
+    this.hasTimerStarted = false;
+    this.finalTime = this.subscribeTime;
+    this.subscribeTime = 0;
+    clearInterval(this.timer);
+  }
+
+  ngOnDestory() {
+    clearInterval(this.timer);
   }
 }

@@ -1,12 +1,18 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-2"></div>
-    <div class="row col-sm-4">
-      <div class="col-sm-3">
+    <div class="row col-sm-5">
+      <div class="col-sm-2">
         <button (click)="Back()" class="btn btn-primary">Back</button>
       </div>
       <div class="col-sm-2">
         <button (click)="Reset()" class="btn btn-primary">Reset</button>
+      </div>
+      <div class="col-sm-1">
+        <i class="far fa-clock" style="font-size:150%;"></i>
+      </div>
+      <div class="col-sm-3">
+        <span class="timer">{{ subscribeTime }}</span>
       </div>
     </div>
   </div>
@@ -19,17 +25,40 @@
       'medium' : (level == 'medium'),
       'hard' : (level == 'hard')
     }"
-      (click)="OpenRegion(cell)" [disabled]="gameOver">
+      (click)="OpenRegion(cell)" [disabled]="result != 'Reset'">
       <label [hidden]="!cell.show" [ngClass]="{
         'fas' : true,
         'fa-bomb' : cell.value === -1
-      }">{{ cell.value !== -1 ? cell.value : null }}</label>
+      }">{{
+        cell.value !== -1 ? cell.value : null }}</label>
       <label [hidden]="cell.show">&nbsp;</label>
     </button>
   </div>
-  <div class="col-sm-3">
-    <alert type="danger" [hidden]="!gameOver">
-      <strong>Oh snap!</strong> Try again.
-    </alert>
+</div>
+<div bsModal #smModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="dialog-sizes-name2">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">You {{ result }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="Reset()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-sm-2">
+            <label class="far fa-clock" style="font-size:120%;"></label>
+          </div>
+          <div class="col-sm-3">
+            <span class="timer">{{ finalTime }}</span>
+          </div>
+        </div>
+        <div class="row">
+          <button class="col-sm-12 btn btn-info" type="button" (click)="Reset()">
+            <label class="fas fa-redo-alt"></label>{{ (result == "Won") ? "Play" : "Try" }} Again
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

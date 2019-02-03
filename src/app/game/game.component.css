@@ -1,6 +1,6 @@
 .easy {
-    min-width:8%;
-    max-width:8%;
+    min-width:4%;
+    max-width:4%;
 }
 .medium {
     min-width:5%;
@@ -9,4 +9,10 @@
 .hard {
     min-width:3%;
     max-width:3%;
+}
+.timer {
+    font-size:150%;
+}
+.btn {
+    border: 1px solid #ccc!important;
 }

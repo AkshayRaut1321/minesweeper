@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AlertModule, ButtonsModule } from 'ngx-bootstrap';
+import { AlertModule, ButtonsModule, ModalModule } from 'ngx-bootstrap';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,7 +21,8 @@ import { NotFoundComponent } from './not-found/not-found.component';
     AppRoutingModule,
     AlertModule.forRoot(),
     FormsModule,
-    ButtonsModule.forRoot()
+    ButtonsModule.forRoot(),
+    ModalModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
