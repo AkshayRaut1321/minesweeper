@@ -30,14 +30,14 @@ export class GameComponent implements OnInit {
   private rows: number;
   private showCount: number;
   private minesCount: number;
-  private activeMines: number;
+  activeMines: number;
   subscribeTime = 0;
   modalRef: BsModalRef;
   @ViewChild('smModal') smModal;
   status: Result;
   hasTimerStarted = false;
   timer: any;
-  private mineFlag: string;
+  mineFlag: string;
 
   constructor(private route: ActivatedRoute, private router: Router, private modalService: BsModalService) {
     this.rows = 3;
