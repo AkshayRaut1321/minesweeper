@@ -1,18 +1,21 @@
 <div class="container">
   <div class="row">
-    <div class="col-sm-2"></div>
-    <div class="row col-sm-5">
-      <div class="col-sm-2">
-        <button (click)="Back()" class="btn btn-primary">Back</button>
-      </div>
-      <div class="col-sm-2">
-        <button (click)="Reset()" class="btn btn-primary">Reset</button>
-      </div>
-      <div class="col-sm-1">
-        <i class="far fa-clock" style="font-size:150%;"></i>
-      </div>
-      <div class="col-sm-3">
-        <span class="timer">{{ subscribeTime }}</span>
+    <div class="col-sm-11">
+      <div class="row col-sm-5 col-12">
+        <div class="col-sm-2 col-3">
+          <button (click)="Back()" class="btn btn-primary">Back</button>
+        </div>
+        <div class="col-sm-3 col-3">
+          <i class="far fa-clock fa-2x"></i>&nbsp;
+          <span class="game-stat-text">{{ subscribeTime }}</span>
+        </div>
+        <div class="col-sm-3 col-3">
+          <img class="flag-minesweeper" [src]="mineFlag">&nbsp;
+          <span class="game-stat-text">{{ activeMines }}</span>
+        </div>
+        <div class="col-sm-2 col-2">
+          <button (click)="Reset()" class="btn btn-primary">Reset</button>
+        </div>
       </div>
     </div>
   </div>
@@ -25,13 +28,16 @@
       'medium' : (level == 'medium'),
       'hard' : (level == 'hard')
     }"
-      (click)="OpenRegion(cell)" [disabled]="result != 'Reset'">
-      <label [hidden]="!cell.show" [ngClass]="{
-        'fas' : true,
-        'fa-bomb' : cell.value === -1
+      (click)="OpenRegion(cell)" [disabled]="status == 'Won' || status == 'Lost' " (contextmenu)="flagForMine(cell)">
+      <label [hidden]="!cell.show" [ngClass]="{ 'fas' : true,
+        'fa-bomb' : cell.value === -1 && !cell.flagged
       }">{{
         cell.value !== -1 ? cell.value : null }}</label>
       <label [hidden]="cell.show">&nbsp;</label>
+      <img [hidden]="!cell.flagged || cell.show" class="cell flag-minesweeper" [src]="mineFlag">
+      <label [hidden]="!cell.show" [ngClass]="{ 'fas' : true,
+        'fa-times-circle' : cell.flagged && cell.value === -1
+      }"></label>
     </button>
   </div>
 </div>
@@ -39,24 +45,28 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title pull-left">You {{ result }}</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="Reset()">
+        <h4 class="modal-title pull-left">You {{ status }}</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="HideModal()">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-sm-2">
-            <label class="far fa-clock" style="font-size:120%;"></label>
-          </div>
-          <div class="col-sm-3">
-            <span class="timer">{{ subscribeTime }}</span>
+          <div class="col-sm-4">
+            <i class="far fa-clock fa-2x"></i>
+            <span class="timer">{{ " " + subscribeTime }}</span>
           </div>
         </div>
+        <div class="row">&nbsp;</div>
         <div class="row">
-          <button class="col-sm-12 btn btn-info" type="button" (click)="Reset()">
-            <label class="fas fa-redo-alt"></label>{{ (result == "Won") ? "Play" : "Try" }} Again
-          </button>
+          <div class="col-sm-6">
+            <button class="col-sm-12 btn btn-info" type="button" (click)="Reset()">
+              <label class="fas fa-redo-alt fa-sm"></label>{{ " " + ((status == "Won") ? "Play" : "Try") }} Again
+            </button>
+          </div>
+          <div class="col-sm-6">
+            <button class="col-sm-12 btn btn-info" type="button" (click)="HideModal()">Show results</button>
+          </div>
         </div>
       </div>
     </div>

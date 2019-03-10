@@ -1,12 +1,22 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap';
-import { timer, Subscription } from 'rxjs';
 
 enum Result {
   Reset = "Reset",
   Won = "Won",
-  Lost = "Lost"
+  Lost = "Lost",
+  InProgress = "InProgress"
+}
+
+class Cell {
+  constructor(public x: number, public y: number, public show: boolean, public value: number, public flagged: boolean) {
+  }
+}
+
+class Mine {
+  constructor(public x: number, public y: number) {
+  }
 }
 
 @Component({
@@ -20,17 +30,20 @@ export class GameComponent implements OnInit {
   private rows: number;
   private showCount: number;
   private minesCount: number;
+  private activeMines: number;
   subscribeTime = 0;
   modalRef: BsModalRef;
   @ViewChild('smModal') smModal;
-  result: Result;
+  status: Result;
   hasTimerStarted = false;
   timer: any;
+  private mineFlag: string;
 
   constructor(private route: ActivatedRoute, private router: Router, private modalService: BsModalService) {
     this.rows = 3;
     this.showCount = 0;
-    this.result = Result.Reset;
+    this.status = Result.Reset;
+    this.mineFlag = "assets/flag_icon_minesweeper.png";
   }
 
   ngOnInit() {
@@ -40,8 +53,8 @@ export class GameComponent implements OnInit {
     });
   }
 
-  private GetMinesByLevel(level: string): any[] {
-    var result = [];
+  private GetMinesByLevel(level: string): Mine[] {
+    var result: Mine[] = [];
     switch (level) {
       case 'easy':
         this.rows = 9;
@@ -61,30 +74,31 @@ export class GameComponent implements OnInit {
       default:
         throw new Error("Invalid level selected");
     }
+    this.activeMines = this.minesCount;
     return result;
   }
 
-  private AllocateMines(minesLocation: any[]) {
+  private AllocateMines(minesLocation: Mine[]) {
     while (minesLocation.length < this.minesCount) {
       let x = Math.floor(Math.random() * this.rows);
       let y = Math.floor(Math.random() * this.rows);
       if (minesLocation.findIndex(a => a[0] == x && a[1] == y) == -1) {
-        minesLocation.push([x, y]);
+        minesLocation.push(new Mine(x, y));
       }
     }
   }
 
-  private PlaceMines(mines): any[] {
+  private PlaceMines(mines: Mine[]): any[] {
     var mineFields = new Array(this.rows);
     for (let i = 0; i < this.rows; i++) {
       mineFields[i] = [];
       for (let j = 0; j < this.rows; j++) {
-        mineFields[i].push({ x: i, y: j, show: false, value: 0 });
+        mineFields[i].push(new Cell(i, j, false, 0, false));
       }
     }
     for (let i = 0; i < mines.length; i++) {
-      let x = mines[i][0];
-      let y = mines[i][1];
+      let x = mines[i].x;
+      let y = mines[i].y;
       mineFields[x][y].value = -1;
       for (let j = x - 1; j <= x + 1; j++) {
         for (let k = y - 1; k <= y + 1; k++) {
@@ -96,27 +110,30 @@ export class GameComponent implements OnInit {
     return mineFields;
   }
 
-  OpenRegion(cell) {
+  OpenRegion(cell: Cell) {
+    if (cell.flagged || cell.show)
+      return;
+    this.status = Result.InProgress;
     this.startStopwatch();
     if (!this.checkWin(cell)) {
       if (cell.value === -1) {
-        this.result = Result.Lost;
+        this.status = Result.Lost;
         this.ShowMines();
         this.openModal();
         this.stopwatch();
       }
       else {
         if (cell.value === 0) {
-          var selectedCells = [];
+          var selectedCells: Cell[] = [];
           selectedCells.push(cell);
           while (selectedCells.length > 0) {
-            var current = selectedCells.shift();
+            var current: Cell = selectedCells.shift();
             for (let i = current.x - 1; i <= current.x + 1; i++) {
               for (let j = current.y - 1; j <= current.y + 1; j++) {
                 if (i >= 0 && i < this.rows && j >= 0 && j < this.rows && (i !== current.x || j !== current.y)) {
                   let row = this.fields[i];
-                  let adjacentCell = row[j];
-                  if (!adjacentCell.show && adjacentCell.value !== -1) {
+                  let adjacentCell: Cell = row[j];
+                  if (!adjacentCell.show && adjacentCell.value !== -1 && !adjacentCell.flagged) {
                     if (!this.checkWin(adjacentCell))
                       if (adjacentCell.value === 0)
                         selectedCells.push(adjacentCell);
@@ -130,12 +147,12 @@ export class GameComponent implements OnInit {
     }
   }
 
-  checkWin(cell) {
+  checkWin(cell: Cell) {
     cell.show = true;
     this.showCount++;
     if (this.showCount == (this.rows ** 2 - this.minesCount)) {
       this.openModal();
-      this.result = Result.Won;
+      this.status = Result.Won;
       this.stopwatch();
       return true;
     }
@@ -145,19 +162,26 @@ export class GameComponent implements OnInit {
   ShowMines() {
     for (let i = 0; i < this.rows; i++) {
       for (let j = 0; j < this.rows; j++) {
-        if (this.fields[i][j].value === -1)
-          this.fields[i][j].show = true;
+        var currentCell: Cell = this.fields[i][j];
+        if (currentCell.value === -1) {
+          currentCell.show = true;
+        }
       }
     }
   }
 
   Reset() {
+    this.stopwatch();
     this.smModal.hide();
-    var mines = this.GetMinesByLevel(this.level);
+    var mines: Mine[] = this.GetMinesByLevel(this.level);
     this.fields = this.PlaceMines(mines);
-    this.result = Result.Reset;
+    this.status = Result.Reset;
     this.showCount = 0;
     this.subscribeTime = 0;
+  }
+
+  HideModal() {
+    this.smModal.hide();
   }
 
   Back() {
@@ -181,6 +205,22 @@ export class GameComponent implements OnInit {
     this.hasTimerStarted = false;
     this.subscribeTime;
     clearInterval(this.timer);
+  }
+
+  flagForMine(cell: Cell) {
+    if (cell.show)
+      return false;
+    if (this.status == Result.InProgress) {
+      if (cell.flagged && this.activeMines < this.minesCount) {
+        cell.flagged = false;
+        this.activeMines++;
+      }
+      else if (this.activeMines > 0) {
+        cell.flagged = true;
+        this.activeMines--;
+      }
+    }
+    return false;
   }
 
   ngOnDestory() {

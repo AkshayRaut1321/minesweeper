@@ -1,18 +1,58 @@
-.easy {
+button.btn.easy {
     min-width:4%;
     max-width:4%;
 }
-.medium {
+@media (max-width: 767px) {
+    button.btn.easy {
+        min-width:11%;
+        max-width:11%;
+    }
+}
+button.btn.medium {
     min-width:5%;
     max-width:5%;
 }
-.hard {
+@media (max-width: 767px) {
+    button.btn.medium {
+        min-width:11%;
+        max-width:11%;
+    }
+}
+button.btn.hard {
     min-width:3%;
     max-width:3%;
 }
-.timer {
+@media (max-width: 767px) {
+    button.btn.hard {
+        min-width:11%;
+        max-width:11%;
+    }
+}
+.game-stat-text {
     font-size:150%;
+    vertical-align: middle;
 }
 .btn {
     border: 1px solid #ccc!important;
+}
+.fas.fa-redo-alt.fa-sm{
+    height:max-content;
+}
+.far.fa-clock.fa-2x{
+    color:red;
+    vertical-align:bottom;
+}
+.flag-minesweeper{
+    width:35%;
+    vertical-align: middle;
+}
+.far.fa-clock.fa-2x{
+    vertical-align: middle;
+}
+
+.cell.flag-minesweeper{
+    width:77%;
+}
+.disabled {
+    pointer-events: none;
 }
